@@ -35,7 +35,7 @@ PYTHON_SETUP=CC='$(CC) $(CPPFLAGS)' $(PYTHON) setup.py
 
 pythonlib:
 	cd $(abs_srcdir) && \
-	  $(PYTHON_SETUP) build --build-base=$(abs_builddir) build_ext -I$(abs_top_srcdir)/src:$(abs_top_builddir)/src -L$(abs_top_builddir)/src/.libs
+		$(PYTHON_SETUP) build --build-base=$(abs_builddir) build_ext -I$(abs_top_srcdir)/src:$(abs_top_builddir)/src:$(abs_top_builddir) -L$(abs_top_builddir)/src/.libs
 
 install-exec-local: 
 	cd $(abs_srcdir) && \
