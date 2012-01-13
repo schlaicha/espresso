@@ -16,6 +16,7 @@ ext_params['extra_compile_args'] = ["-fPIC"]
 ext_modules=[
     Extension("espresso", ["espresso.pyx"], libraries=['espresso_main','tcl8.5', 'mpi'], **ext_params),
     Extension("particle_data", ["particle_data.pyx"], libraries=['espresso_main','tcl8.5', 'mpi' ], **ext_params),
+    Extension("particle_properties", ["particle_properties.pyx"], libraries=['espresso_main','tcl8.5', 'mpi' ], **ext_params),
     Extension("interaction_data", ["interaction_data.pyx"], libraries=['espresso_main','tcl8.5', 'mpi'], **ext_params),
     Extension("global_variables", ["global_variables.pyx"], libraries=['espresso_main','tcl8.5', 'mpi'], **ext_params),
     Extension("debye_hueckel", ["debye_hueckel.pyx"], libraries=['espresso_main','tcl8.5', 'mpi'], **ext_params),

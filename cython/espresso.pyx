@@ -2,6 +2,8 @@ cimport numpy as np
 import numpy as np
 import particle_data
 cimport particle_data 
+import particle_properties
+#cimport particle_properties
 import interaction_data
 cimport interaction_data
 import global_variables
