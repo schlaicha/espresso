@@ -2,6 +2,8 @@ cimport utils
 cimport numpy as np
 import numpy as np
 
+include "myconfig.pxi"
+
 cdef Particle this_particle
 
 cdef int update_particle_data(int id) except -1:
@@ -39,14 +41,16 @@ def getPos(_id):
     update_particle_data(id)
     return np.array([this_particle.r.p[0], this_particle.r.p[1], this_particle.r.p[2]])
 
-# if ELECTROSTATICS
 def setCharge(_id, _q):
-    cdef double q = _q
-    cdef int id = _id
-    if set_particle_q(id, q):
-        raise Exception("set particle position first")
-    else:
-        return 0
+    IF ELECTROSTATICS == 1:
+        cdef double q = _q
+        cdef int id = _id
+        if set_particle_q(id, q):
+            raise Exception("set particle position first")
+        else:
+            return 0
+    ELSE:
+        raise Exception("Electrostatics not compiled in!")
 
 def getCharge(_id):
     cdef int id = _id
