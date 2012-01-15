@@ -41,6 +41,24 @@ def getPos(_id):
     update_particle_data(id)
     return np.array([this_particle.r.p[0], this_particle.r.p[1], this_particle.r.p[2]])
 
+def setMass(_id, _mass):
+    IF MASS == 1:
+        cdef double mass = _mass
+        cdef int id = _id
+        if set_particle_mass(id, mass):
+            raise Exception("set particle position first")
+        else:
+            return 0
+    ELSE:
+        raise Exception("Mass not compiled in!")
+
+def getMass(_id):
+    IF MASS == 1:
+        cdef int id = _id
+        update_particle_data(id)
+        return this_particle.p.mass
+    ELSE: return -1
+ 
 def setCharge(_id, _q):
     IF ELECTROSTATICS == 1:
         cdef double q = _q
@@ -58,6 +76,3 @@ def getCharge(_id):
     return this_particle.p.q
     
 
-def dosomething():
-    print "I'm doing something"
-    return 0

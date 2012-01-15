@@ -6,11 +6,15 @@ from espresso cimport *
 cimport numpy as np
 from utils cimport *
 
+include "myconfig.pxi"
+
 cdef extern from "../src/particle_data.h":
     ctypedef struct ParticleProperties:
         int type
-        # if ELECTROSTATICS
+        #IF ELECTROSTATICS == 1:
         double q
+        #IF MASS == 1:
+        double mass
     ctypedef struct ParticlePosition:
         double p[3]
     ctypedef struct Particle:
@@ -21,7 +25,9 @@ cdef extern from "../src/particle_data.h":
     int get_particle_data(int part, Particle *data)
 
     int set_particle_type(int part, int type)
-    int set_particle_q(int part, double q)
     int place_particle(int part, double p[3])
 
-
+    IF ELECTROSTATICS == 1:
+        int set_particle_q(int part, double q)
+    IF MASS == 1:
+        int set_particle_mass(int part, double mass)
