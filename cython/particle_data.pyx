@@ -2,6 +2,8 @@ cimport numpy as np
 import numpy as np
 cimport utils
 
+include "myconfig.pxi"
+
 cdef class ParticleHandle:
     def __cinit__(self, _id):
 #        utils.init_intlist(self.particleData.el)
@@ -31,11 +33,33 @@ cdef class ParticleHandle:
     property type:
         def __set__(self, _type):
             cdef int type = _type
-            if set_particle_type(id, type):
+            if set_particle_type(self.id, type):
                 raise Exception("set particle position first")
         def __get__(self):
             self.update_particle_data()
             return self.particleData.p.type
+
+    IF ELECTROSTATICS == 1:
+        property q:
+            def __set__(self, _q):
+                cdef double q = _q
+                if set_particle_q(self.id, q):
+                    raise Exception("set particle position first")
+            def __get__(self):
+                self.update_particle_data()
+                return self.particleData.p.q
+
+    IF MASS == 1:
+        property mass:
+            def __set__(self, _mass):
+                cdef double mass = _mass
+                if set_particle_mass(self.id, mass):
+                    raise Exception("set particle position first")
+            def __get__(self):
+                self.update_particle_data()
+                return self.particleData.p.mass
+
+
 
 cdef class particleList:
   def __getitem__(self, key):
