@@ -1053,6 +1053,48 @@ static int tclcommand_constraint_parse_plane_cell(Constraint *con, Tcl_Interp *i
   return (TCL_OK);
 }
 
+static int tclcommand_constraint_parse_charged_box(Constraint *con, Tcl_Interp *interp,
+		int argc, char **argv) {
+	con->type = CONSTRAINT_CHARGED_BOX;
+	
+	con->c.ch_box.charge_density = 0;
+	con->c.ch_box.size[0] = -1;
+	con->c.ch_box.size[1] = -1;
+	
+	if (argc < 2) {
+		Tcl_AppendResult(interp, "constraint charged_box <length> <height> expected", (char *) NULL);
+		return (TCL_ERROR);
+	}
+	
+	if (Tcl_GetDouble(interp, argv[0], &(con->c.ch_box.size[0])) == TCL_ERROR || Tcl_GetDouble(interp, argv[1], &(con->c.ch_box.size[1])) == TCL_ERROR)
+		return (TCL_ERROR);
+	argc -= 2; argv += 2;
+
+	while (argc > 0) {
+		if (!strncmp(argv[0], "sigma", strlen(argv[0]))) {
+			if (argc < 1) {
+				Tcl_AppendResult(interp, "constraint charged_box sigma <s> expected", (char *) NULL);
+				return (TCL_ERROR);
+			}
+			if (Tcl_GetDouble(interp, argv[1], &(con->c.ch_box.charge_density)) == TCL_ERROR)
+				return (TCL_ERROR);
+			argc -= 2; argv += 2;
+		}
+		else {
+			Tcl_AppendResult(interp, "usage: constraint charged_box <length> <height> sigma <s> expected", (char *) NULL);
+			return (TCL_ERROR);
+		}
+	}
+	
+	if (con->c.ch_box.size[0] < 0 || con->c.ch_box.size[1] < 0) {
+		Tcl_AppendResult(interp, "usage: constraint charged_box <length> <height> sigma <s> expected", (char *) NULL);
+		return (TCL_ERROR);
+	}
+	
+	return (TCL_OK);
+}
+
+
 static int tclcommand_constraint_mindist_position(Tcl_Interp *interp, int argc, char **argv) {
   double pos[3];
   double vec[3];
@@ -1251,6 +1293,10 @@ int tclcommand_constraint(ClientData _data, Tcl_Interp *interp,
   }
   else if(!strncmp(argv[1], "plane cell", strlen(argv[1]))) {
     status = tclcommand_constraint_parse_plane_cell(generate_constraint(),interp, argc - 2, argv + 2);
+    mpi_bcast_constraint(-1);
+  } 
+  else if (!strncmp(argv[1], "charged_box", strlen(argv[1]))) {
+    status = tclcommand_constraint_parse_charged_box(generate_constraint(),interp, argc - 2, argv + 2);
     mpi_bcast_constraint(-1);
   }
   //end ER

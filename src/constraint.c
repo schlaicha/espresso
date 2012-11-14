@@ -1274,6 +1274,7 @@ void add_constraints_forces(Particle *p1)
 	  calc_non_bonded_pair_force(p1, &constraints[n].part_rep,
 				     ia_params,vec,dist,dist*dist, force,
 				     torque1, torque2);
+				  
 	}
 	else if ( dist <= 0 && constraints[n].c.cyl.penetrable == 1 ) {
 	  if ( dist < 0 ) {
@@ -1368,7 +1369,44 @@ void add_constraints_forces(Particle *p1)
     case CONSTRAINT_PLATE:
       add_plate_force(p1, folded_pos, &constraints[n].part_rep, &constraints[n].c.plate);
       break;
-      
+
+    case CONSTRAINT_CHARGED_BOX:
+		if (p1->r.p[0] <= box_l[0] / 2.0 - constraints[n].c.ch_box.size[0] 
+				|| p1->r.p[0] >= box_l[0] / 2.0 + constraints[n].c.ch_box.size[0] 
+				|| p1->r.p[1] <= box_l[1] / 2.0 - constraints[n].c.ch_box.size[1] 
+				|| p1->r.p[1] >= box_l[1] / 2.0 + constraints[n].c.ch_box.size[1]) {
+				errtxt = runtime_error(128 + 2*ES_INTEGER_SPACE);
+				ERROR_SPRINTF(errtxt, "{063 charged_box constraint %d violated by particle %d} ", n, p1->p.identity);
+			}
+			else {
+				double x = p1->r.p[0] - (box_l[0] - constraints[n].c.ch_box.size[0]) / 2.0;
+				double y = p1->r.p[1] - (box_l[1] - constraints[n].c.ch_box.size[1]) / 2.0;
+				double sqr_x = x * x;
+				double sqr_y = y * y;
+				double l = constraints[n].c.ch_box.size[0];
+				double h = constraints[n].c.ch_box.size[1];
+				double l_minus_x = l - x;
+				double h_minus_y = h - y;
+				double sqr_l_minus_x = l_minus_x * l_minus_x;
+				double sqr_h_minus_y = h_minus_y * h_minus_y;
+				double force[2];	
+				force[0]= p1->p.q * 2 * constraints[n].c.ch_box.charge_density
+					* (log((sqr_x + sqr_y) * (sqr_h_minus_y + sqr_x)
+						/ ((sqr_l_minus_x + sqr_y) * (sqr_l_minus_x + sqr_h_minus_y))) / 2.0
+					- atan(y / l_minus_x) + atan(h_minus_y / x) + atan(y / x) - atan(h_minus_y / l_minus_x));
+				p1->f.f[0]+=force[0];
+      				constraints[n].part_rep.f.f[0] -= force[0];
+				force[1]= p1->p.q * 2 * constraints[n].c.ch_box.charge_density 
+					* (log((sqr_x + sqr_y) * (sqr_l_minus_x + sqr_y)
+						/ ((sqr_h_minus_y + sqr_x) * (sqr_l_minus_x + sqr_h_minus_y))) / 2.0
+					- atan(x / h_minus_y) + atan(l_minus_x / y) + atan(x / y) - atan(l_minus_x / h_minus_y));
+				p1->f.f[1]+=force[1];
+      				constraints[n].part_rep.f.f[1] -= force[1];
+			}
+      break;
+
+
+
 #ifdef DIPOLES
     case CONSTRAINT_EXT_MAGN_FIELD:
       add_ext_magn_field_force(p1, &constraints[n].c.emfield);

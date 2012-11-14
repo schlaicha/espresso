@@ -169,6 +169,8 @@
 #define CONSTRAINT_PLANE 9
 /** Constraint for tunable-lsip boundary conditions */
 #define CONSTRAINT_RHOMBOID 10
+/** Constraint for charged box */
+#define CONSTRAINT_CHARGED_BOX 11
 /*@}*/
 
 /* Data Types */
@@ -702,6 +704,16 @@ typedef struct {
   double sigma;
 } Constraint_plate;
 
+
+/** Parameters for a CHARGED BOX constraint */
+typedef struct {
+	// The charge density of the charged box
+	double charge_density;
+	// size of the charged box: the length and the height
+	double size[2];
+}Constraint_charged_box;
+
+
 /** Parameters for a MAZE constraint. */
 typedef struct {
   /** number of spheres. */
@@ -748,6 +760,7 @@ typedef struct {
     Constraint_ext_magn_field emfield;
     //end ER
     Constraint_plane plane;
+    Constraint_charged_box ch_box;
   } c;
 
   /** particle representation of this constraint. Actually needed are only the identity,
